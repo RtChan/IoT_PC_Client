@@ -7,6 +7,8 @@
 #include "PC_ClientDlg.h"
 #include "afxdialogex.h"
 
+#include "ClientSocket.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -18,6 +20,7 @@
 
 CPC_ClientDlg::CPC_ClientDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_PC_CLIENT_DIALOG, pParent)
+	, m_clientid(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -25,11 +28,15 @@ CPC_ClientDlg::CPC_ClientDlg(CWnd* pParent /*=NULL*/)
 void CPC_ClientDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_SERVERID, m_clientid);
+	DDX_Control(pDX, IDC_IPADDRESS, m_serverip);
+	DDX_Control(pDX, IDC_EDIT_EVENT, m_event);
 }
 
 BEGIN_MESSAGE_MAP(CPC_ClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(ID_BUTTON_RUN, &CPC_ClientDlg::OnBnClickedButtonRun)
 END_MESSAGE_MAP()
 
 
@@ -85,3 +92,62 @@ HCURSOR CPC_ClientDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CPC_ClientDlg::UpdateEvent(CString str)
+{
+	CString string;
+	CTime time = CTime::GetCurrentTime();
+	// 获取系统当前时间
+	str += _T("\r\n");
+	// 用于换行显示日志
+	string = time.Format(_T("%Y/%m/%d %H:%M:%S  ")) + str;
+	// 格式化当前时间
+	int lastLine = m_event.LineIndex(m_event.GetLineCount() - 1);
+	//获取编辑框最后一行索引
+	m_event.SetSel(lastLine + 1, lastLine + 2, 0);
+	//选择编辑框最后一行
+	m_event.ReplaceSel(string);                                                             //替换所选那一行的内容
+}
+
+void CPC_ClientDlg::OnBnClickedButtonRun()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(true);
+
+	// 获取IPAddressCtrl
+	CIPAddressCtrl * pIP = (CIPAddressCtrl*)GetDlgItem(IDC_IPADDRESS);
+	BYTE nf1, nf2, nf3, nf4;
+	pIP->GetAddress(nf1, nf2, nf3, nf4);
+	CString serverIPAddress;
+	serverIPAddress.Format(_T("%d.%d.%d.%d"), nf1, nf2, nf3, nf4);
+
+	// 启动socket连接
+	if (m_connected) {
+		pSock->Close();
+
+		delete pSock;
+		pSock = nullptr;
+
+		m_connected = false;
+
+		SetDlgItemText(ID_BUTTON_RUN, _T("运行客户端"));
+		UpdateData(false);
+		return;
+	}
+
+	pSock = new CClientSocket();
+	if (!pSock->Create()) {
+		AfxMessageBox(_T("套接字创建失败！"));
+		return;
+	}
+
+	if (!pSock->Connect(serverIPAddress, 6000)) {
+		AfxMessageBox(_T("连接服务器失败！"));
+		return;
+	}
+
+	m_connected = true;
+	SetDlgItemText(ID_BUTTON_RUN, _T("断开连接"));
+	UpdateData(false);
+
+	return;
+}

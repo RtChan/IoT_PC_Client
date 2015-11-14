@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include "ClientSocket.h"
+#include "afxcmn.h"
+#include "afxwin.h"
 
 // CPC_ClientDlg 对话框
 class CPC_ClientDlg : public CDialogEx
@@ -20,7 +23,6 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
-
 // 实现
 protected:
 	HICON m_hIcon;
@@ -30,4 +32,19 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
+// Socket相关
+public:
+	bool m_connected;
+	CClientSocket* pSock;
+	//BOOL WChar2MByte(LPCWSTR lpSrc, LPSTR lpDest, int nlen);
+//	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
+// Dlg资源
+public:
+	void UpdateEvent(CString str);
+	afx_msg void OnBnClickedButtonRun();
+	UINT m_clientid;
+	//CIPAddressCtrl m_serverip;
+	CEdit m_event;
 };
