@@ -29,14 +29,15 @@ void CPC_ClientDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT_SERVERID, m_clientid);
-	DDX_Control(pDX, IDC_IPADDRESS, m_serverip);
 	DDX_Control(pDX, IDC_EDIT_EVENT, m_event);
+	DDX_Control(pDX, IDC_COMBO_SERIALPORT, m_combo);
 }
 
 BEGIN_MESSAGE_MAP(CPC_ClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(ID_BUTTON_RUN, &CPC_ClientDlg::OnBnClickedButtonRun)
+	ON_CBN_SELCHANGE(IDC_COMBO_SERIALPORT, &CPC_ClientDlg::OnCbnSelchangeComboSerialport)
 END_MESSAGE_MAP()
 
 
@@ -52,6 +53,16 @@ BOOL CPC_ClientDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+
+	// 下拉列表组合框初始化
+	CString str_port;
+	char portnum[3];
+	for (int i = 1; i < 16; ++i) {
+		sprintf_s(portnum, "%d", i);
+		str_port = portnum;
+		str_port = _T("COM") + str_port;		
+		m_combo.AddString(str_port);
+	}
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -150,4 +161,12 @@ void CPC_ClientDlg::OnBnClickedButtonRun()
 	UpdateData(false);
 
 	return;
+}
+
+
+void CPC_ClientDlg::OnCbnSelchangeComboSerialport()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int sel = m_combo.GetCurSel();
+	m_combo.GetLBText(sel, m_comSel);
 }

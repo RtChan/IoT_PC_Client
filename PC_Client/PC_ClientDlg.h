@@ -45,6 +45,8 @@ public:
 	void UpdateEvent(CString str);
 	afx_msg void OnBnClickedButtonRun();
 	UINT m_clientid;
-	//CIPAddressCtrl m_serverip;
+	CString m_comSel;
 	CEdit m_event;
+	CComboBox m_combo;
+	afx_msg void OnCbnSelchangeComboSerialport();
 };
