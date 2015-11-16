@@ -60,7 +60,7 @@ BOOL CPC_ClientDlg::OnInitDialog()
 	for (int i = 1; i < 16; ++i) {
 		sprintf_s(portnum, "%d", i);
 		str_port = portnum;
-		str_port = _T("COM") + str_port;		
+		str_port = _T("COM") + str_port;
 		m_combo.AddString(str_port);
 	}
 
@@ -106,23 +106,42 @@ HCURSOR CPC_ClientDlg::OnQueryDragIcon()
 void CPC_ClientDlg::UpdateEvent(CString str)
 {
 	CString string;
-	CTime time = CTime::GetCurrentTime();
-	// 获取系统当前时间
-	str += _T("\r\n");
-	// 用于换行显示日志
-	string = time.Format(_T("%Y/%m/%d %H:%M:%S  ")) + str;
-	// 格式化当前时间
-	int lastLine = m_event.LineIndex(m_event.GetLineCount() - 1);
-	//获取编辑框最后一行索引
-	m_event.SetSel(lastLine + 1, lastLine + 2, 0);
-	//选择编辑框最后一行
-	m_event.ReplaceSel(string);                                                             //替换所选那一行的内容
+	
+	CTime time = CTime::GetCurrentTime();						// 获取系统当前时间	
+	str += _T("\r\n");											// 用于换行显示日志
+	//string = time.Format(_T("%Y/%m/%d %H:%M:%S  ")) + str;		// 格式化当前时间
+	string = time.Format(_T("%H:%M:%S  ")) + str;
+
+	int lastLine = m_event.LineIndex(m_event.GetLineCount() - 1);	//获取编辑框最后一行索引
+	m_event.SetSel(lastLine + 1, lastLine + 2, 0);					//选择编辑框最后一行
+	m_event.ReplaceSel(string);										//替换所选那一行的内容
 }
 
 void CPC_ClientDlg::OnBnClickedButtonRun()
 {
+	CString _str, _sel;
+
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(true);
+
+	// 串口相关处理
+	if (!m_bSerialPortOpened) {
+		if (m_SerialPort.InitPort(this, m_comSel, 115200, 'N', 8, 1, EV_RXFLAG | EV_RXCHAR, 512)) {
+			m_SerialPort.StartMonitoring();
+			m_bSerialPortOpened = true;
+
+			m_combo.GetLBText(m_comSel, _sel);
+			_str = _T("串口");
+			_str.Append(_sel);
+			_str.Append(_T("打开成功"));
+			UpdateEvent(_str);
+			UpdateData(false);
+		}
+		else {
+			AfxMessageBox(_T("串口打开失败！"));
+			m_bSerialPortOpened = false;
+		}
+	}
 
 	// 获取IPAddressCtrl
 	CIPAddressCtrl * pIP = (CIPAddressCtrl*)GetDlgItem(IDC_IPADDRESS);
@@ -141,6 +160,10 @@ void CPC_ClientDlg::OnBnClickedButtonRun()
 		m_connected = false;
 
 		SetDlgItemText(ID_BUTTON_RUN, _T("运行客户端"));
+		_str = _T("服务器");
+		_str.Append(serverIPAddress);
+		_str.Append(_T("已断开"));
+		UpdateEvent(_str);
 		UpdateData(false);
 		return;
 	}
@@ -158,6 +181,10 @@ void CPC_ClientDlg::OnBnClickedButtonRun()
 
 	m_connected = true;
 	SetDlgItemText(ID_BUTTON_RUN, _T("断开连接"));
+	_str = _T("服务器");
+	_str.Append(serverIPAddress);
+	_str.Append(_T("已连接"));
+	UpdateEvent(_str);
 	UpdateData(false);
 
 	return;
@@ -168,5 +195,10 @@ void CPC_ClientDlg::OnCbnSelchangeComboSerialport()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int sel = m_combo.GetCurSel();
-	m_combo.GetLBText(sel, m_comSel);
+	
+	//获取CString型串口号
+	//m_combo.GetLBText(sel, m_comSel);
+	
+	//获取int型串口号
+	m_comSel = sel + 1;
 }

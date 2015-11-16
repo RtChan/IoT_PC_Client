@@ -7,6 +7,7 @@
 #include "ClientSocket.h"
 #include "afxcmn.h"
 #include "afxwin.h"
+#include "SerialPort.h"
 
 // CPC_ClientDlg 对话框
 class CPC_ClientDlg : public CDialogEx
@@ -33,20 +34,27 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 
+// SerialPort相关
+public:
+	CSerialPort m_SerialPort;	//SerialPort类
+	bool m_bSerialPortOpened;	//判断串口是否打开
+	UCHAR m_SerialRecv[9];		//串口接收存放
+
 // Socket相关
 public:
-	bool m_connected;
-	CClientSocket* pSock;
+	bool m_connected;			//判断是否已连接服务器
+	CClientSocket* pSock;		//Socket派生的ClientSocket类
 	//BOOL WChar2MByte(LPCWSTR lpSrc, LPSTR lpDest, int nlen);
-//	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
 
 // Dlg资源
 public:
-	void UpdateEvent(CString str);
-	afx_msg void OnBnClickedButtonRun();
-	UINT m_clientid;
-	CString m_comSel;
+	void UpdateEvent(CString str);		//更新日志框
+	UINT m_clientid;					//储存客户端ID
+	int m_comSel;						//储存串口号
 	CEdit m_event;
 	CComboBox m_combo;
+	afx_msg void OnBnClickedButtonRun();
 	afx_msg void OnCbnSelchangeComboSerialport();
+//	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
