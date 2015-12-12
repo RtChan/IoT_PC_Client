@@ -55,7 +55,8 @@ bool CSerialProtocol::isVerified(void)
 
 void CSerialProtocol::solvePkg(const UCHAR * pPkg) {
 
-	strncpy_s((char *)Pkg, (PKG_SIZE+1)*sizeof(UCHAR), (const char *)pPkg, PKG_SIZE + 1);
+	//strncpy_s((char *)Pkg, (PKG_SIZE+1)*sizeof(UCHAR), (const char *)pPkg, PKG_SIZE + 1);
+	memcpy_s(Pkg, (PKG_SIZE + 1)*sizeof(UCHAR), pPkg, (PKG_SIZE + 1)*sizeof(UCHAR));
 
 	if (!isVerified(Pkg[PKG_SIZE])) {
 		Verified = false;
@@ -84,14 +85,15 @@ void CSerialProtocol::solvePkg(const UCHAR * pPkg) {
 }
 
 void CSerialProtocol::solveDHT11(void) {
-	LPWSTR wszTemp = new WCHAR();
-	LPWSTR wszHumi = new WCHAR();
+	LPWSTR wszTemp = new WCHAR[4];
+	LPWSTR wszHumi = new WCHAR[4];
 	wsprintf(wszTemp, _T("%u"), Pkg[1]);
 	wsprintf(wszHumi, _T("%u"), Pkg[3]);
 
 	ResolovedStr = _T("DHT11:");
 	ResolovedStr.Append(_T("Temperature:"));
 	ResolovedStr.Append(wszTemp);
+	ResolovedStr.Append(_T(" "));
 	ResolovedStr.Append(_T("Humidity:"));
 	ResolovedStr.Append(wszHumi);
 	ResolovedStr.Append(_T("."));
