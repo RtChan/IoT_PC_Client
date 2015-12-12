@@ -8,6 +8,7 @@
 #include "afxdialogex.h"
 
 #include "ClientSocket.h"
+#include "SerialProtocol.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -38,6 +39,7 @@ BEGIN_MESSAGE_MAP(CPC_ClientDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(ID_BUTTON_RUN, &CPC_ClientDlg::OnBnClickedButtonRun)
 	ON_CBN_SELCHANGE(IDC_COMBO_SERIALPORT, &CPC_ClientDlg::OnCbnSelchangeComboSerialport)
+	ON_BN_CLICKED(IDCANCEL, &CPC_ClientDlg::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
 
@@ -47,7 +49,7 @@ BOOL CPC_ClientDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// 设置此对话框的图标。  当应用程序主窗口不是对话框时，框架将自动
+	//  设置此对话框的图标。  当应用程序主窗口不是对话框时，框架将自动
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
@@ -103,6 +105,25 @@ HCURSOR CPC_ClientDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+LRESULT CPC_ClientDlg::OnComm(WPARAM ch, LPARAM port)
+{
+	static int i = 0;
+	CString str;
+
+	m_pkg[i++] = ch;
+
+	if (i == PKG_SIZE) {
+		i = 0;
+		m_pkg[PKG_SIZE] = '\0';
+		m_SerialProtocol.setRawPkg(m_pkg);
+		UpdateEvent(m_SerialProtocol.getResolvedStr());
+		str = m_pkg;
+		AfxMessageBox(str);
+	}
+
+	return LRESULT();
+}
+
 void CPC_ClientDlg::UpdateEvent(CString str)
 {
 	CString string;
@@ -123,6 +144,7 @@ void CPC_ClientDlg::OnBnClickedButtonRun()
 
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(true);
+	m_combo.GetLBText(m_comSel - 1, _sel);
 
 	// 串口相关处理
 	if (!m_bSerialPortOpened) {
@@ -130,7 +152,6 @@ void CPC_ClientDlg::OnBnClickedButtonRun()
 			m_SerialPort.StartMonitoring();
 			m_bSerialPortOpened = true;
 
-			m_combo.GetLBText(m_comSel, _sel);
 			_str = _T("串口");
 			_str.Append(_sel);
 			_str.Append(_T("打开成功"));
@@ -141,6 +162,14 @@ void CPC_ClientDlg::OnBnClickedButtonRun()
 			AfxMessageBox(_T("串口打开失败！"));
 			m_bSerialPortOpened = false;
 		}
+	}
+	else {
+		//m_SerialPort.ClosePort();
+		//_str = _T("串口");
+		//_str.Append(_sel);
+		//_str.Append(_T("关闭"));
+		//UpdateEvent(_str);
+		//UpdateData(false);
 	}
 
 	// 获取IPAddressCtrl
@@ -201,4 +230,12 @@ void CPC_ClientDlg::OnCbnSelchangeComboSerialport()
 	
 	//获取int型串口号
 	m_comSel = sel + 1;
+}
+
+
+void CPC_ClientDlg::OnBnClickedCancel()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_SerialPort.ClosePort();
+	CDialogEx::OnCancel();
 }

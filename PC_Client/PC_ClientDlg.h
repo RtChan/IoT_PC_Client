@@ -8,6 +8,7 @@
 #include "afxcmn.h"
 #include "afxwin.h"
 #include "SerialPort.h"
+#include "SerialProtocol.h"
 
 // CPC_ClientDlg 对话框
 class CPC_ClientDlg : public CDialogEx
@@ -32,13 +33,16 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg LRESULT OnComm(WPARAM ch, LPARAM port);		// SerialPort 消息映射
 	DECLARE_MESSAGE_MAP()
 
 // SerialPort相关
 public:
 	CSerialPort m_SerialPort;	//SerialPort类
 	bool m_bSerialPortOpened;	//判断串口是否打开
-	UCHAR m_SerialRecv[9];		//串口接收存放
+	UCHAR m_SerialRecv[PKG_SIZE + 1];		//串口接收存放
+	UCHAR m_pkg[PKG_SIZE + 1];				//存放串口接收到的数据包
+	CSerialProtocol m_SerialProtocol;
 
 // Socket相关
 public:
@@ -57,4 +61,5 @@ public:
 	afx_msg void OnBnClickedButtonRun();
 	afx_msg void OnCbnSelchangeComboSerialport();
 //	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnBnClickedCancel();
 };
