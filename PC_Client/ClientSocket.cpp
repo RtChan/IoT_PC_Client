@@ -26,3 +26,12 @@ void CClientSocket::OnReceive(int nErrorCode)
 
 	CSocket::OnReceive(nErrorCode);
 }
+
+BOOL CClientSocket::SendMSG(LPSTR lpBuff, int nlen)
+{
+	if (Send(lpBuff, nlen) == SOCKET_ERROR) {
+		AfxMessageBox(_T("·¢ËÍ´íÎó£¡"));
+		return FALSE;
+	}
+	return TRUE;
+}

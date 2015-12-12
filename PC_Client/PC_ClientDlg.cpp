@@ -110,20 +110,29 @@ LRESULT CPC_ClientDlg::OnComm(WPARAM ch, LPARAM port)
 {
 	static int i = 0;
 	CString str;
+	
 
 	m_pkg[i++] = ch;
 
 	if (i == PKG_SIZE) {
 		i = 0;
 		m_pkg[PKG_SIZE] = '\0';
+
+		/* 数据包解析 */
 		m_SerialProtocol.setRawPkg(m_pkg);
 		if (m_SerialProtocol.isVerified()) 
 			UpdateEvent(m_SerialProtocol.getResolvedStr());
 		else
 			UpdateEvent(_T("错误的串口数据包"));
-			
-		str = m_pkg;
-		AfxMessageBox(str);
+		
+		/* 数据包发送至服务器 */
+		str = m_SerialProtocol.getResolvedStr();
+		char *pBuff = new char[str.GetLength() * 2];
+		memset(pBuff, 0, str.GetLength() * 2);
+		WChar2MByte(str.GetBuffer(str.GetLength()), pBuff, 2*str.GetLength());
+		pSock->SendMSG(pBuff, 2 * str.GetLength());
+				
+		//AfxMessageBox(str);
 	}
 
 	return LRESULT();
@@ -243,4 +252,15 @@ void CPC_ClientDlg::OnBnClickedCancel()
 	// TODO: 在此添加控件通知处理程序代码
 	m_SerialPort.ClosePort();
 	CDialogEx::OnCancel();
+}
+
+BOOL CPC_ClientDlg::WChar2MByte(LPCWSTR lpSrc, LPSTR lpDest, int nlen)
+{
+//	int n = 0;
+
+//	n = WideCharToMultiByte(CP_OEMCP, 0, lpSrc, -1, lpDest, 0, 0, FALSE);
+//	if (n < nlen) return FALSE;
+
+	WideCharToMultiByte(CP_OEMCP, 0, lpSrc, -1, lpDest, nlen, 0, FALSE);
+	return TRUE;
 }

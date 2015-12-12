@@ -48,7 +48,7 @@ public:
 public:
 	bool m_connected;			//判断是否已连接服务器
 	CClientSocket* pSock;		//Socket派生的ClientSocket类
-	//BOOL WChar2MByte(LPCWSTR lpSrc, LPSTR lpDest, int nlen);
+	BOOL WChar2MByte(LPCWSTR lpSrc, LPSTR lpDest, int nlen);
 
 
 // Dlg资源
