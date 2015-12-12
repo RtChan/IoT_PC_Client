@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 
-#define PKG_SIZE 6
+#define PKG_SIZE 8
 
 // 传感器ID定义
 #define NAME_DHT11		0x01
@@ -18,6 +18,7 @@ public:
 
 // 方法
 public:
+	bool isVerified(void);
 	int setRawPkg(const UCHAR *pPkg);
 	CString getResolvedStr();
 //	CString getResolvedStr(const UCHAR *pPkg);
@@ -41,4 +42,5 @@ private:
 private:
 	void solveDHT11(void);
 	void solveBODYIR(void);
+	void solveUnknown(void);
 };

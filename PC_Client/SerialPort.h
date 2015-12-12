@@ -28,13 +28,13 @@
 #define WM_COMM_TXEMPTY_DETECTED	WM_USER+9	// The last character in the output buffer was sent.  
 
 /*
- * Modified log
- * 1.添加关闭串口方法 void ClosePort();
- * 2.解决关闭锁死问题;
- */
+* Modified log
+* 1.添加关闭串口方法 void ClosePort();
+* 2.解决关闭锁死问题;
+*/
 
 class CSerialPort
-{														 
+{
 public:
 	// contruction and destruction
 	CSerialPort();

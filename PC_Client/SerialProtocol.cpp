@@ -47,6 +47,12 @@ int CSerialProtocol::isVerified(const UCHAR code)
 	else return -1;
 }
 
+bool CSerialProtocol::isVerified(void) 
+{
+	if (false == Verified) return false;
+	else return true;
+}
+
 void CSerialProtocol::solvePkg(const UCHAR * pPkg) {
 
 	strncpy_s((char *)Pkg, (PKG_SIZE+1)*sizeof(UCHAR), (const char *)pPkg, PKG_SIZE + 1);
@@ -71,6 +77,8 @@ void CSerialProtocol::solvePkg(const UCHAR * pPkg) {
 		solveBODYIR();
 		break;
 	default:
+		SensorType = _T("Unknown");
+		solveUnknown();
 		break;
 	}
 }
@@ -97,4 +105,9 @@ void CSerialProtocol::solveBODYIR(void)
 	ResolovedStr = _T("BodyIR:");
 	ResolovedStr.Append(Pkg[1] ? _T("ON") : _T("OFF"));
 	ResolovedStr.Append(_T("."));
+}
+
+void CSerialProtocol::solveUnknown(void)
+{
+	ResolovedStr = _T("Unknown sensor.");
 }

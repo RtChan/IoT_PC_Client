@@ -37,6 +37,7 @@ void CPC_ClientDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CPC_ClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_MESSAGE(WM_COMM_RXCHAR, OnComm)	// SerialPort消息映射
 	ON_BN_CLICKED(ID_BUTTON_RUN, &CPC_ClientDlg::OnBnClickedButtonRun)
 	ON_CBN_SELCHANGE(IDC_COMBO_SERIALPORT, &CPC_ClientDlg::OnCbnSelchangeComboSerialport)
 	ON_BN_CLICKED(IDCANCEL, &CPC_ClientDlg::OnBnClickedCancel)
@@ -116,7 +117,11 @@ LRESULT CPC_ClientDlg::OnComm(WPARAM ch, LPARAM port)
 		i = 0;
 		m_pkg[PKG_SIZE] = '\0';
 		m_SerialProtocol.setRawPkg(m_pkg);
-		UpdateEvent(m_SerialProtocol.getResolvedStr());
+		if (m_SerialProtocol.isVerified()) 
+			UpdateEvent(m_SerialProtocol.getResolvedStr());
+		else
+			UpdateEvent(_T("错误的串口数据包"));
+			
 		str = m_pkg;
 		AfxMessageBox(str);
 	}
